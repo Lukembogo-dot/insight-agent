@@ -1,0 +1,44 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install -r app/requirements.txt
+
+    - name: Authenticate to GCP
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: <INSERT_JSON_KEY_HERE>
+
+    - name: Set up gcloud
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Build & Push Docker image
+      run: |
+        IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/insight-agent-repo/insight-agent:${GITHUB_SHA}"
+        docker build -t $IMAGE ./app
+        docker push $IMAGE
+      env:
+        GCP_REGION: <INSERT_REGION_HERE>
+        GCP_PROJECT_ID: <INSERT_PROJECT_ID_HERE>
+
+    - name: Terraform Init
+      working-directory: ./infra
+      run: terraform init
+
+    - name: Terraform Apply
+      working-directory: ./infra
+      run: terraform apply -auto-approve -var="project_id=<secrets.GCP_PROJECT_ID>" -var="region=<INSERT_SECRET_PROJECT_ID_HERE>" -var="image_tag=${GITHUB_SHA}"
