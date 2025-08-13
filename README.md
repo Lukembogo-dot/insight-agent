@@ -38,7 +38,7 @@ In your GitHub repo:
   - `GCP_CREDENTIALS` → Paste the entire JSON key here.
   - `GCP_PROJECT_ID` → Your GCP project ID.
   - `GCP_REGION` → e.g., `us-central1`.
-- Add the same credentials inside `deploy.yml` in the insert sections to much the ones you have provided above
+- Add the same credentials inside `deploy.yml` in the insert sections to match the ones you have provided above
 ---
 
 ### 4️⃣ Deploy Automatically
